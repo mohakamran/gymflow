@@ -36,7 +36,7 @@ class InvoiceController extends Controller
             ->with('member')
             ->when($filters['status'] ?? null, fn ($query, $status) => $status === 'overdue' ? $query->overdue() : $query->where('status', $status))
             ->when($filters['search'] ?? null, fn ($query, $search) => $query->where(fn ($inner) => $inner
-                ->where('number', 'like', "%{$search}%")
+                ->whereLike('number', "%{$search}%")
                 ->orWhereHas('member', fn ($member) => $member->search($search))))
             ->when($filters['from'] ?? null, fn ($query, $from) => $query->where('issued_on', '>=', $from))
             ->when($filters['to'] ?? null, fn ($query, $to) => $query->where('issued_on', '<=', $to))

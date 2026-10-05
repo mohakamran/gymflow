@@ -106,4 +106,15 @@ class TenantBoundaryTest extends TestCase
         $this->actingAs($admin)->patch(route('admin.plans.resolve', $request->id), ['decision' => 'approved'])->assertRedirect();
         $this->assertSame('business', $gym->fresh()->subscription_plan->value);
     }
+
+    public function test_member_search_is_case_insensitive_and_matches_full_name(): void
+    {
+        $gym = Tenant::factory()->create();
+        $owner = $this->gymUser(Role::Owner, $gym);
+        $this->inTenant($gym, fn () => Member::factory()->create(['tenant_id' => $gym->id, 'first_name' => 'Maya', 'last_name' => 'Johnson']));
+
+        $this->actingAs($owner)->getJson(route('members.lookup', ['q' => 'maya']))->assertOk()->assertJsonCount(1);
+        $this->actingAs($owner)->getJson(route('members.lookup', ['q' => 'MAYA JOHN']))->assertOk()->assertJsonCount(1);
+        $this->actingAs($owner)->getJson(route('members.lookup', ['q' => 'nobody']))->assertOk()->assertJsonCount(0);
+    }
 }

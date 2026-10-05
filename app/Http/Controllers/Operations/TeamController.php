@@ -41,7 +41,7 @@ class TeamController extends Controller
             'users' => $users,
             'filters' => $filters,
             'usage' => $limits->usage(tenant())['staff'],
-            'upcomingClasses' => ClassSession::query()->upcoming()->where('starts_at', '<=', now()->addWeek())
+            'upcomingClasses' => ClassSession::query()->upcoming()->reorder()->where('starts_at', '<=', now()->addWeek())
                 ->toBase()->selectRaw('trainer_id, count(*) as total')->groupBy('trainer_id')->pluck('total', 'trainer_id'),
         ]);
     }

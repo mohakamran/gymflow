@@ -234,17 +234,17 @@ class Member extends Model
         }
 
         $like = '%'.str_replace(['%', '_'], ['\%', '\_'], $term).'%';
-        $fullName = $query->getConnection()->getDriverName() === 'sqlite'
-            ? "(first_name || ' ' || last_name)"
-            : "CONCAT(first_name, ' ', last_name)";
+        $driver = $query->getConnection()->getDriverName();
+        $fullName = $driver === 'sqlite' ? "(first_name || ' ' || last_name)" : "CONCAT(first_name, ' ', last_name)";
+        $operator = $driver === 'pgsql' ? 'ilike' : 'like';
 
-        $query->where(function (Builder $inner) use ($like, $fullName): void {
-            $inner->where('first_name', 'like', $like)
-                ->orWhere('last_name', 'like', $like)
-                ->orWhereRaw("{$fullName} like ?", [$like])
-                ->orWhere('member_code', 'like', $like)
-                ->orWhere('email', 'like', $like)
-                ->orWhere('phone', 'like', $like);
+        $query->where(function (Builder $inner) use ($like, $fullName, $operator): void {
+            $inner->whereLike('first_name', $like)
+                ->orWhereLike('last_name', $like)
+                ->orWhereRaw("{$fullName} {$operator} ?", [$like])
+                ->orWhereLike('member_code', $like)
+                ->orWhereLike('email', $like)
+                ->orWhereLike('phone', $like);
         });
     }
 }

@@ -34,7 +34,7 @@ class ExpenseController extends Controller
         $query = Expense::query()
             ->whereBetween('spent_on', [$from, $to])
             ->when($filters['category'] ?? null, fn ($query, $category) => $query->where('category', $category))
-            ->when($filters['search'] ?? null, fn ($query, $search) => $query->where(fn ($inner) => $inner->where('title', 'like', "%{$search}%")->orWhere('vendor', 'like', "%{$search}%")));
+            ->when($filters['search'] ?? null, fn ($query, $search) => $query->where(fn ($inner) => $inner->whereLike('title', "%{$search}%")->orWhereLike('vendor', "%{$search}%")));
 
         $expenseTotal = (float) (clone $query)->sum('amount');
         $range = [CarbonImmutable::parse($from, tenant_timezone())->startOfDay()->utc(), CarbonImmutable::parse($to, tenant_timezone())->endOfDay()->utc()];

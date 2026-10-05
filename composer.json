@@ -44,9 +44,11 @@
         "setup": [
             "composer install",
             "@php -r \"file_exists('.env') || copy('.env.example', '.env');\"",
-            "@php artisan key:generate",
-            "@php artisan migrate --force",
-            "npm install --ignore-scripts",
+            "@php -r \"str_contains(file_get_contents('.env'), 'APP_KEY=base64:') || passthru('php artisan key:generate --ansi');\"",
+            "@php -r \"preg_match('/^DB_CONNECTION=sqlite/m', file_get_contents('.env')) && ! file_exists('database/database.sqlite') && touch('database/database.sqlite');\"",
+            "@php artisan migrate --seed --force",
+            "@php artisan storage:link --force",
+            "npm install",
             "npm run build"
         ],
         "dev": [

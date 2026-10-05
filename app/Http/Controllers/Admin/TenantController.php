@@ -25,9 +25,9 @@ class TenantController extends Controller
         $tenants = Tenant::query()
             ->withCount('users')
             ->when($filters['search'] ?? null, fn ($query, string $search) => $query->where(fn ($inner) => $inner
-                ->where('name', 'like', "%{$search}%")
-                ->orWhere('email', 'like', "%{$search}%")
-                ->orWhere('slug', 'like', "%{$search}%")))
+                ->whereLike('name', "%{$search}%")
+                ->orWhereLike('email', "%{$search}%")
+                ->orWhereLike('slug', "%{$search}%")))
             ->when($filters['status'] ?? null, fn ($query, string $status) => $query->where('status', $status))
             ->when($filters['plan'] ?? null, fn ($query, string $plan) => $query->where('subscription_plan', $plan))
             ->latest()

@@ -28,7 +28,7 @@ class EquipmentController extends Controller
         ]);
 
         $equipment = Equipment::query()
-            ->when($filters['search'] ?? null, fn ($query, $search) => $query->where(fn ($inner) => $inner->where('name', 'like', "%{$search}%")->orWhere('serial_number', 'like', "%{$search}%")->orWhere('location', 'like', "%{$search}%")))
+            ->when($filters['search'] ?? null, fn ($query, $search) => $query->where(fn ($inner) => $inner->whereLike('name', "%{$search}%")->orWhereLike('serial_number', "%{$search}%")->orWhereLike('location', "%{$search}%")))
             ->when($filters['category'] ?? null, fn ($query, $category) => $query->where('category', $category))
             ->when($filters['status'] ?? null, fn ($query, $status) => $query->where('status', $status))
             ->when(isset($filters['maintenance']), fn ($query) => $query->maintenanceDue())

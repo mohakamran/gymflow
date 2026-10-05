@@ -29,7 +29,7 @@ class PlatformController extends Controller
 
         $users = User::withoutTenancy()
             ->with(['roles', 'tenant'])
-            ->when($filters['search'] ?? null, fn ($query, $search) => $query->where(fn ($inner) => $inner->where('name', 'like', "%{$search}%")->orWhere('email', 'like', "%{$search}%")))
+            ->when($filters['search'] ?? null, fn ($query, $search) => $query->where(fn ($inner) => $inner->whereLike('name', "%{$search}%")->orWhereLike('email', "%{$search}%")))
             ->when($filters['role'] ?? null, fn ($query, $role) => $query->role($role))
             ->latest()
             ->paginate(25)
@@ -84,7 +84,7 @@ class PlatformController extends Controller
 
         return view('admin.activity', [
             'logs' => AuditLog::withoutTenancy()->with(['user', 'tenant'])
-                ->when($filters['event'] ?? null, fn ($query, $event) => $query->where('event', 'like', $event.'%'))
+                ->when($filters['event'] ?? null, fn ($query, $event) => $query->whereLike('event', $event.'%'))
                 ->when($filters['tenant'] ?? null, fn ($query, $tenant) => $query->where('tenant_id', $tenant))
                 ->latest('created_at')->latest('id')->paginate(30)->withQueryString(),
             'filters' => $filters,

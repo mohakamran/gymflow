@@ -20,7 +20,7 @@ class AuditLogController extends Controller
 
         $logs = AuditLog::query()
             ->with('user')
-            ->when($filters['event'] ?? null, fn ($query, string $event) => $query->where('event', 'like', $event.'%'))
+            ->when($filters['event'] ?? null, fn ($query, string $event) => $query->whereLike('event', $event.'%'))
             ->when($filters['user'] ?? null, fn ($query, int $userId) => $query->where('user_id', $userId))
             ->when($filters['from'] ?? null, fn ($query, string $from) => $query->where('created_at', '>=', $from))
             ->when($filters['to'] ?? null, fn ($query, string $to) => $query->where('created_at', '<=', $to.' 23:59:59'))

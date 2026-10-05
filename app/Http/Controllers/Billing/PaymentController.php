@@ -40,7 +40,7 @@ class PaymentController extends Controller
             ->when($filters['method'] ?? null, fn ($query, $method) => $query->where('method', $method))
             ->when($filters['status'] ?? null, fn ($query, $status) => $query->where('status', $status))
             ->when($filters['search'] ?? null, fn ($query, $search) => $query->where(fn ($inner) => $inner
-                ->where('reference', 'like', "%{$search}%")
+                ->whereLike('reference', "%{$search}%")
                 ->orWhereHas('member', fn ($member) => $member->search($search))));
 
         $successful = (clone $query)->successful()->get(['amount', 'refunded_amount', 'method']);
