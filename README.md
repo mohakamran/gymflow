@@ -10,7 +10,7 @@ Members, memberships, check-ins, payments, invoices, classes, trainers, equipmen
 [![PHP](https://img.shields.io/badge/PHP-8.3%2B-777BB4?logo=php&logoColor=white)](https://www.php.net)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
 [![Alpine.js](https://img.shields.io/badge/Alpine.js-3-8BC0D0?logo=alpinedotjs&logoColor=white)](https://alpinejs.dev)
-[![Tests](https://img.shields.io/badge/tests-76%20passing-22c55e)](#-testing)
+[![Tests](https://img.shields.io/badge/tests-84%20passing-22c55e)](#-testing)
 [![Database](https://img.shields.io/badge/DB-SQLite%20%7C%20MySQL-4479A1?logo=mysql&logoColor=white)](#-using-mysql)
 
 ![GymFlow dashboard](docs/screenshots/dashboard.png)
@@ -409,7 +409,7 @@ You can run any command by hand, for one gym or all of them: `php artisan gym:re
 php artisan test
 ```
 
-**76 feature tests (600+ assertions)** run against an in-memory SQLite database, so your data is never touched. They cover:
+**84 tests (600+ assertions)** run against an in-memory SQLite database, so your data is never touched. They cover:
 
 - **Data isolation:** another gym's IDs in URLs, lookups, reports, portal invoices and attendance codes.
 - **Authentication:** registration, email verification, login rate limiting and password reset.
@@ -468,7 +468,7 @@ resources/
 └── views/                 Blade pages + components/ (design system)
 routes/web.php             All routes, grouped by area and permission
 routes/console.php         Scheduler
-tests/Feature/             76 feature tests
+tests/                    84 feature & unit tests
 docs/screenshots/          README images
 ```
 
