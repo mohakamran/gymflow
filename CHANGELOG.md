@@ -6,6 +6,15 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added: Database support
+- Verified on **SQLite, MySQL and PostgreSQL**: migrations, demo seeding and all 85 tests pass on each.
+- `composer setup` installs and sets up everything in one command, for any database.
+- Step-by-step MySQL and PostgreSQL setup instructions for Windows, macOS and Linux.
+
+### Fixed
+- MySQL `ONLY_FULL_GROUP_BY` error on the Team page.
+- Searches are now case-insensitive on every database (PostgreSQL `LIKE` is case-sensitive).
+
 ### Added: Developer experience
 - Demo accounts panel on the login page with one-click copy buttons for every email and the password, plus a **Use** button that fills in the form. Controlled by `SHOW_DEMO_ACCOUNTS` (on by default when `APP_ENV=local`).
 - README with screenshots of every area, a 5-minute quick start, a role matrix and troubleshooting.

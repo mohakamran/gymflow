@@ -10,8 +10,8 @@ Members, memberships, check-ins, payments, invoices, classes, trainers, equipmen
 [![PHP](https://img.shields.io/badge/PHP-8.3%2B-777BB4?logo=php&logoColor=white)](https://www.php.net)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
 [![Alpine.js](https://img.shields.io/badge/Alpine.js-3-8BC0D0?logo=alpinedotjs&logoColor=white)](https://alpinejs.dev)
-[![Tests](https://img.shields.io/badge/tests-84%20passing-22c55e)](#-testing)
-[![Database](https://img.shields.io/badge/DB-SQLite%20%7C%20MySQL-4479A1?logo=mysql&logoColor=white)](#-using-mysql)
+[![Tests](https://img.shields.io/badge/tests-85%20passing-22c55e)](#-testing)
+[![Databases](https://img.shields.io/badge/DB-SQLite%20%7C%20MySQL%20%7C%20PostgreSQL-4479A1?logo=mysql&logoColor=white)](#-database-setup)
 
 ![GymFlow dashboard](docs/screenshots/dashboard.png)
 
@@ -22,21 +22,21 @@ Members, memberships, check-ins, payments, invoices, classes, trainers, equipmen
 ## 📚 Table of contents
 
 1. [What is GymFlow?](#-what-is-gymflow)
-2. [Quick start (5 minutes)](#-quick-start-5-minutes)
-3. [Demo accounts](#-demo-accounts)
-4. [Screenshots](#-screenshots)
-5. [Features](#-features)
-6. [Who can use it: roles & permissions](#-who-can-use-it-roles--permissions)
-7. [Using MySQL](#-using-mysql)
-8. [Configuration](#-configuration)
-9. [Background jobs & scheduler](#-background-jobs--scheduler)
-10. [Testing](#-testing)
-11. [Architecture](#-architecture)
-12. [Project structure](#-project-structure)
-13. [Deploying to production](#-deploying-to-production)
-14. [Extending GymFlow](#-extending-gymflow)
-15. [Troubleshooting](#-troubleshooting)
-16. [Tools & libraries](#-tools--libraries)
+2. [Installation](#-installation)
+3. [Database setup: SQLite, MySQL, PostgreSQL](#-database-setup)
+4. [Demo accounts](#-demo-accounts)
+5. [Screenshots](#-screenshots)
+6. [Features](#-features)
+7. [Who can use it: roles & permissions](#-who-can-use-it-roles--permissions)
+8. [Technologies used](#-technologies-used)
+9. [Configuration](#-configuration)
+10. [Background jobs & scheduler](#-background-jobs--scheduler)
+11. [Testing](#-testing)
+12. [Architecture](#-architecture)
+13. [Project structure](#-project-structure)
+14. [Deploying to production](#-deploying-to-production)
+15. [Extending GymFlow](#-extending-gymflow)
+16. [Troubleshooting](#-troubleshooting)
 17. [License](#-license)
 
 ---
@@ -59,57 +59,198 @@ GymFlow is **multi-tenant SaaS software for gyms and fitness studios**, built wi
 
 ---
 
-## 🚀 Quick start (5 minutes)
+## 🚀 Installation
 
-### Requirements
+### Step 1: Install the required tools
 
-| Tool | Version | Get it |
-|---|---|---|
-| PHP | 8.3 or newer, with `pdo_sqlite`, `mbstring`, `openssl`, `fileinfo`, `gd` | [php.net](https://www.php.net/downloads) · macOS: `brew install php` · Windows: [Laravel Herd](https://herd.laravel.com) |
-| Composer | 2.x | [getcomposer.org](https://getcomposer.org/download/) |
-| Node.js | 20 or newer (includes npm) | [nodejs.org](https://nodejs.org) |
-| Git | any | [git-scm.com](https://git-scm.com) |
+You need **PHP**, **Composer**, **Node.js** and **Git**. A database server is optional, because SQLite works out of the box.
 
-> 💡 **Easiest on Windows and macOS:** [Laravel Herd](https://herd.laravel.com) installs PHP and Composer in one step.
+| Tool | Version | Windows | macOS | Linux (Ubuntu/Debian) |
+|---|---|---|---|---|
+| **PHP** | 8.3 or newer | [Laravel Herd](https://herd.laravel.com) (includes Composer) | `brew install php` or [Herd](https://herd.laravel.com) | `sudo apt install php8.3 php8.3-{cli,sqlite3,mysql,pgsql,mbstring,xml,curl,gd,zip,bcmath}` |
+| **Composer** | 2.x | included with Herd, or [getcomposer.org](https://getcomposer.org/download/) | `brew install composer` | [getcomposer.org](https://getcomposer.org/download/) |
+| **Node.js** | 20 or newer | [nodejs.org](https://nodejs.org) | `brew install node` | [nodejs.org](https://nodejs.org/en/download/package-manager) |
+| **Git** | any | [git-scm.com](https://git-scm.com) | included with Xcode tools | `sudo apt install git` |
 
-### Install & run
+**Required PHP extensions:** `pdo_sqlite` (or `pdo_mysql` / `pdo_pgsql`), `mbstring`, `openssl`, `fileinfo`, `gd`, `xml`, `curl`, `zip`. Herd and Homebrew include all of them.
+
+To check your setup:
 
 ```bash
-# 1. Get the code
+php -v          # PHP 8.3+
+composer -V     # Composer 2.x
+node -v         # v20+
+php -m | grep -i pdo     # Windows: php -m | findstr pdo
+```
+
+### Step 2: Download the project
+
+```bash
 git clone https://github.com/mohakamran/gymflow.git
 cd gymflow
+```
 
-# 2. Install dependencies
+### Step 3: Choose your database
+
+| Database | Best for | What you need to do |
+|---|---|---|
+| **SQLite** (default) | Trying it out and local development | Nothing; go straight to Step 4 |
+| **MySQL / MariaDB** | Production and shared servers | Follow [MySQL setup](#mysql) first, then come back to Step 4 |
+| **PostgreSQL** | Production | Follow [PostgreSQL setup](#postgresql) first, then come back to Step 4 |
+
+### Step 4: Install & set up (one command)
+
+```bash
+composer setup
+```
+
+This one command:
+
+1. Installs the PHP packages.
+2. Creates `.env` from `.env.example` if it doesn't exist yet.
+3. Generates the app key.
+4. Creates the SQLite database file (SQLite only).
+5. Creates all the tables and loads the **demo gym**.
+6. Links the storage folder for uploads.
+7. Installs the frontend packages and builds the CSS and JavaScript.
+
+<details>
+<summary><b>Prefer to run each step by hand?</b> Click here.</summary>
+
+```bash
 composer install
 npm install
-
-# 3. Create your environment file and app key
-cp .env.example .env              # Windows (cmd): copy .env.example .env
+cp .env.example .env                 # Windows (cmd): copy .env.example .env
 php artisan key:generate
-
-# 4. Create the SQLite database, tables and demo data
-touch database/database.sqlite    # Windows (cmd): type nul > database\database.sqlite
+touch database/database.sqlite       # SQLite only. Windows (cmd): type nul > database\database.sqlite
 php artisan migrate --seed
 php artisan storage:link
-
-# 5. Build the frontend
 npm run build
+```
+</details>
 
-# 6. Start everything (web server + queue worker + logs + Vite)
+### Step 5: Start the app
+
+```bash
 composer run dev
 ```
 
-Open **http://localhost:8000**, click **Sign in**, and use one of the [demo accounts](#-demo-accounts).
+This starts the **web server, queue worker (emails and notifications), log viewer and Vite** together.
 
-> If you'd rather start the server on its own, run `php artisan serve` in one terminal and `php artisan queue:work` in a second one. The queue worker sends emails and notifications.
+Open **http://localhost:8000** → **Sign in** → copy one of the [demo accounts](#-demo-accounts). 🎉
 
-**No database server is needed.** By default GymFlow uses SQLite, which is a single file at `database/database.sqlite`. To use MySQL, see [Using MySQL](#-using-mysql).
+> If you'd rather start the server on its own, run `php artisan serve` in one terminal and `php artisan queue:work` in a second one.
 
 ### Reset the demo data at any time
 
 ```bash
 php artisan migrate:fresh --seed
 ```
+
+---
+
+## 🗄️ Database setup
+
+GymFlow is tested on **all three** of these databases. The full test suite of 85 tests passes on each:
+
+| Database | Tested version | Status |
+|---|---|---|
+| SQLite | 3.x (bundled with PHP) | ✅ Tested, the default |
+| MySQL | 8.x and newer (tested on 26.7) | ✅ Tested, recommended for production |
+| PostgreSQL | 13 and newer (tested on 18.4) | ✅ Tested |
+| MariaDB | 10.6 and newer | MySQL-compatible (`DB_CONNECTION=mysql`) |
+
+### SQLite
+
+There's nothing to set up: the default `.env` already uses SQLite, and the database is a single file at `database/database.sqlite`. `composer setup` creates it for you.
+
+<a id="mysql"></a>
+### MySQL (or MariaDB)
+
+**1. Install and start MySQL** (skip if you already have it):
+
+| OS | Install |
+|---|---|
+| Windows | [MySQL Installer](https://dev.mysql.com/downloads/installer/), [Laragon](https://laragon.org) or [XAMPP](https://www.apachefriends.org) |
+| macOS | `brew install mysql && brew services start mysql`, or [DBngin](https://dbngin.com) |
+| Linux | `sudo apt install mysql-server && sudo systemctl start mysql` |
+
+**2. Create a database and a user.** Open a MySQL prompt with `mysql -u root -p` and run:
+
+```sql
+CREATE DATABASE gymflow CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE USER 'gymflow'@'localhost' IDENTIFIED BY 'choose-a-strong-password';
+GRANT ALL PRIVILEGES ON gymflow.* TO 'gymflow'@'localhost';
+FLUSH PRIVILEGES;
+```
+
+> Prefer a visual tool? In [phpMyAdmin](https://www.phpmyadmin.net), [MySQL Workbench](https://www.mysql.com/products/workbench/), [TablePlus](https://tableplus.com) or [HeidiSQL](https://www.heidisql.com), create a database named `gymflow` with collation `utf8mb4_unicode_ci`, and a user with full rights on it.
+
+**3. Create `.env` and point it at MySQL:**
+
+```bash
+cp .env.example .env               # Windows (cmd): copy .env.example .env
+```
+
+Open `.env`, comment out `DB_CONNECTION=sqlite`, and fill in the MySQL lines:
+
+```dotenv
+# DB_CONNECTION=sqlite
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=gymflow
+DB_USERNAME=gymflow
+DB_PASSWORD=choose-a-strong-password
+```
+
+**4. Run the setup:** `composer setup`. If you've already run it with SQLite, run `php artisan config:clear && php artisan migrate --seed` instead.
+
+<a id="postgresql"></a>
+### PostgreSQL
+
+**1. Install and start PostgreSQL:**
+
+| OS | Install |
+|---|---|
+| Windows | [PostgreSQL installer](https://www.postgresql.org/download/windows/) (includes pgAdmin) |
+| macOS | `brew install postgresql@17 && brew services start postgresql@17`, [Postgres.app](https://postgresapp.com) or [DBngin](https://dbngin.com) |
+| Linux | `sudo apt install postgresql && sudo systemctl start postgresql` |
+
+**2. Create a database and a user.** Open a prompt with `psql -U postgres` (on Linux: `sudo -u postgres psql`) and run:
+
+```sql
+CREATE USER gymflow WITH PASSWORD 'choose-a-strong-password';
+CREATE DATABASE gymflow OWNER gymflow ENCODING 'UTF8';
+```
+
+> Prefer a visual tool? Use [pgAdmin](https://www.pgadmin.org) or [TablePlus](https://tableplus.com).
+
+**3. Create `.env` and point it at PostgreSQL:** copy `.env.example` to `.env`, comment out `DB_CONNECTION=sqlite`, and set:
+
+```dotenv
+DB_CONNECTION=pgsql
+DB_HOST=127.0.0.1
+DB_PORT=5432
+DB_DATABASE=gymflow
+DB_USERNAME=gymflow
+DB_PASSWORD=choose-a-strong-password
+```
+
+Make sure the `pdo_pgsql` PHP extension is enabled (check with `php -m | grep pgsql`).
+
+**4. Run the setup:** `composer setup`
+
+### Switching databases later
+
+Change the `DB_*` lines in `.env`, then run:
+
+```bash
+php artisan config:clear
+php artisan migrate --seed
+```
+
+This builds a fresh schema in the new database. Existing data is **not** copied across automatically.
 
 ---
 
@@ -321,38 +462,47 @@ php artisan db:seed --class=RolesAndPermissionsSeeder
 
 ---
 
-## 🐬 Using MySQL
+## 🧰 Technologies used
 
-SQLite is perfect for local development. Use **MySQL 8+** (or MariaDB 10.6+) for production.
+### Backend
 
-**1. Create a database and user** by running this in `mysql -u root -p`:
+| Technology | Version | Used for |
+|---|---|---|
+| [PHP](https://www.php.net) | 8.3+ | Language |
+| [Laravel](https://laravel.com) | 13 | Web framework: routing, ORM, queues, scheduler, mail, validation |
+| [Eloquent ORM](https://laravel.com/docs/eloquent) | — | Database models, relationships and gym-level scoping |
+| [spatie/laravel-permission](https://spatie.be/docs/laravel-permission) | 8.3 | Roles & permissions |
+| [barryvdh/laravel-dompdf](https://github.com/barryvdh/laravel-dompdf) | 3.1 | PDF invoices and reports |
+| Laravel Notifications & Queues | — | Emails, in-app notifications, SMS/WhatsApp channels |
 
-```sql
-CREATE DATABASE gymflow CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-CREATE USER 'gymflow'@'localhost' IDENTIFIED BY 'a-strong-password';
-GRANT ALL PRIVILEGES ON gymflow.* TO 'gymflow'@'localhost';
-FLUSH PRIVILEGES;
-```
+### Frontend
 
-**2. Point `.env` at MySQL**, replacing the `DB_CONNECTION=sqlite` line:
+| Technology | Version | Used for |
+|---|---|---|
+| [Blade](https://laravel.com/docs/blade) | — | Server-rendered pages and a reusable component library |
+| [Tailwind CSS](https://tailwindcss.com) | 4.3 | Styling, dark mode and per-gym brand colors |
+| [Alpine.js](https://alpinejs.dev) | 3.17 | Interactivity: menus, dialogs, toasts, live previews, copy buttons |
+| [Chart.js](https://www.chartjs.org) | 4.5 | Dashboard and report charts |
+| [qrcode](https://github.com/soldair/node-qrcode) | 1.5 | Member QR codes |
+| [Heroicons](https://heroicons.com) | — | Icons |
+| [Vite](https://vitejs.dev) | 8 | Frontend build tool |
 
-```dotenv
-DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_DATABASE=gymflow
-DB_USERNAME=gymflow
-DB_PASSWORD=a-strong-password
-```
+### Databases
 
-**3. Create the tables:**
+| Database | Used for |
+|---|---|
+| [SQLite](https://www.sqlite.org) | Default for local development, and for the test suite |
+| [MySQL](https://www.mysql.com) / [MariaDB](https://mariadb.org) | Production |
+| [PostgreSQL](https://www.postgresql.org) | Production |
 
-```bash
-php artisan config:clear
-php artisan migrate --seed
-```
+### Development & quality
 
-The same migrations run on both SQLite and MySQL. Switching databases builds a fresh schema; existing data is **not** copied over.
+| Tool | Used for |
+|---|---|
+| [PHPUnit](https://phpunit.de) 12 | 85 automated tests |
+| [Laravel Pint](https://laravel.com/docs/pint) | Code style |
+| [Composer](https://getcomposer.org) / [npm](https://www.npmjs.com) | Package managers |
+| [Git](https://git-scm.com) / [GitHub](https://github.com) | Version control |
 
 ---
 
@@ -366,7 +516,7 @@ All settings live in `.env`; [`.env.example`](.env.example) lists them with comm
 | `APP_ENV` | `local` | `production` enforces strong passwords and skips demo data |
 | `APP_DEBUG` | `true` | **Must be `false` in production** |
 | `APP_URL` | `http://localhost:8000` | Used in emails and links |
-| `DB_CONNECTION` | `sqlite` | `sqlite` or `mysql` ([details](#-using-mysql)) |
+| `DB_CONNECTION` | `sqlite` | `sqlite`, `mysql` or `pgsql` ([details](#-database-setup)) |
 | `QUEUE_CONNECTION` | `database` | Background jobs (use `redis` at scale) |
 | `MAIL_MAILER` | `log` | Locally, emails are written to `storage/logs/laravel.log`. Set SMTP for real emails |
 | `SHOW_DEMO_ACCOUNTS` | on when `local` | Show the copyable demo accounts on the login page |
@@ -409,7 +559,7 @@ You can run any command by hand, for one gym or all of them: `php artisan gym:re
 php artisan test
 ```
 
-**84 tests (600+ assertions)** run against an in-memory SQLite database, so your data is never touched. They cover:
+**85 tests (600+ assertions)** run against an in-memory SQLite database, so your data is never touched. The same suite also passes on MySQL and PostgreSQL. To test against another database, set the `DB_*` environment variables before running `php artisan test`. They cover:
 
 - **Data isolation:** another gym's IDs in URLs, lookups, reports, portal invoices and attendance codes.
 - **Authentication:** registration, email verification, login rate limiting and password reset.
@@ -468,7 +618,7 @@ resources/
 └── views/                 Blade pages + components/ (design system)
 routes/web.php             All routes, grouped by area and permission
 routes/console.php         Scheduler
-tests/                    84 feature & unit tests
+tests/                    85 feature & unit tests
 docs/screenshots/          README images
 ```
 
@@ -476,20 +626,21 @@ docs/screenshots/          README images
 
 ## 🌍 Deploying to production
 
-1. **Server:** PHP 8.3+, MySQL 8, Nginx or Apache with the document root set to `public/`, and HTTPS.
-2. **Install dependencies and build the frontend:**
+1. **Server:** PHP 8.3+, MySQL 8+ or PostgreSQL 13+, Nginx or Apache with the document root set to `public/`, and HTTPS.
+2. **Database:** create the database and user ([MySQL](#mysql) · [PostgreSQL](#postgresql)).
+3. **Install dependencies and build the frontend:**
    ```bash
    composer install --no-dev --optimize-autoloader
    npm ci && npm run build
    ```
-3. **Configure `.env`:**
+4. **Configure `.env`:**
    - `APP_ENV=production`
    - `APP_DEBUG=false`
    - `APP_URL=https://your-domain`
-   - MySQL `DB_*` settings
+   - Database `DB_*` settings
    - SMTP `MAIL_*` settings
    - `SESSION_SECURE_COOKIE=true`
-4. **Set up the database and cache:**
+5. **Set up the database and cache:**
    ```bash
    php artisan key:generate          # first deploy only
    php artisan migrate --force
@@ -497,8 +648,8 @@ docs/screenshots/          README images
    php artisan storage:link
    php artisan optimize
    ```
-5. **Background work:** run `php artisan queue:work` under Supervisor or systemd, and add the scheduler cron entry ([see above](#-background-jobs--scheduler)).
-6. **Create your super admin:**
+6. **Background work:** run `php artisan queue:work` under Supervisor or systemd, and add the scheduler cron entry ([see above](#-background-jobs--scheduler)).
+7. **Create your super admin:**
    ```bash
    php artisan tinker
    >>> $u = App\Models\User::create(['name' => 'Admin', 'email' => 'you@company.com', 'password' => 'a-long-password']);
@@ -527,31 +678,13 @@ Make sure `storage/` and `bootstrap/cache/` are writable by the web server.
 | `Vite manifest not found` | Run `npm run build` (or keep `npm run dev` running) |
 | Images or logos don't show | Run `php artisan storage:link` |
 | Emails or notifications never arrive | Start a queue worker: `php artisan queue:work`. Locally, emails are in `storage/logs/laravel.log` |
-| `could not find driver` | Enable the `pdo_sqlite` or `pdo_mysql` PHP extension |
+| `could not find driver` | Enable the `pdo_sqlite`, `pdo_mysql` or `pdo_pgsql` PHP extension in `php.ini` |
+| `SQLSTATE[HY000] [2002] Connection refused` | Make sure MySQL/PostgreSQL is running, and check `DB_HOST` and `DB_PORT` |
+| `Access denied for user` | Check `DB_USERNAME` and `DB_PASSWORD`, and that the user has rights on the database |
 | `database.sqlite does not exist` | `touch database/database.sqlite`, then `php artisan migrate --seed` |
 | `No application encryption key` | `php artisan key:generate` |
 | Settings changes don't apply | `php artisan optimize:clear` |
 | Locked out after failed logins | Wait 60 seconds (login rate limit) |
-
----
-
-## 🧰 Tools & libraries
-
-| Purpose | Library |
-|---|---|
-| Framework | [Laravel 13](https://laravel.com/docs) |
-| Templates | [Blade](https://laravel.com/docs/blade) components |
-| Styling | [Tailwind CSS 4](https://tailwindcss.com/docs) |
-| Interactivity | [Alpine.js](https://alpinejs.dev) |
-| Build tool | [Vite](https://vitejs.dev) |
-| Roles & permissions | [spatie/laravel-permission](https://spatie.be/docs/laravel-permission) |
-| PDF invoices & reports | [barryvdh/laravel-dompdf](https://github.com/barryvdh/laravel-dompdf) |
-| Charts | [Chart.js](https://www.chartjs.org) |
-| QR codes | [qrcode](https://github.com/soldair/node-qrcode) |
-| Icons | [Heroicons](https://heroicons.com) |
-| Testing | [PHPUnit](https://phpunit.de) |
-| Code style | [Laravel Pint](https://laravel.com/docs/pint) |
-| Database | [SQLite](https://www.sqlite.org) (dev) · [MySQL](https://www.mysql.com) (production) |
 
 ---
 
